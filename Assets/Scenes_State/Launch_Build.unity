@@ -151,13 +151,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32f71c1230df40540abaadef5ed0a74c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ifHandleNewerGuid: 0
-  ifHandleSystemGuid: 0
-  isShowEnvInfo: 0
-  ifShowGUITest: 0
-  IsUseLogViewer: 0
+  ifHandleNewerGuid: 1
+  ifHandleSystemGuid: 1
+  isShowEnvInfo: 1
+  ifShowGUITest: 1
+  IsUseLogViewer: 1
   m_IsDebuglog: 0
-  serverType: 4
+  isBuildPerfTestPackage: 1
+  serverType: 3
   hostIp_dev_Localhost: 127.0.0.1
   hostIp_dev_ZhangSan: 10.0.0.5
   hostIp_test_inner: 10.0.0.6

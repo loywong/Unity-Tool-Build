@@ -22,11 +22,12 @@ public class BuildPreProcessor : IPreprocessBuildWithReport {
 
         string scenePath = activeScene.path;
         Debug.Log ($"scenePath:{scenePath}");
-        // throw new BuildFailedException("构建验证失败, 当前打开的场景不正确");
-        if (!scenePath.Equals ("Assets/Scenes_State/Launch_Build.unity")) {
-            // 抛出 BuildFailedException 来中止构建
-            throw new BuildFailedException ("构建验证失败, 当前打开的场景不正确");
-        }
+
+        // // throw new BuildFailedException("构建验证失败, 当前打开的场景不正确");
+        // if (!scenePath.Equals ("Assets/Scenes_State/Launch_Build.unity")) {
+        //     // 抛出 BuildFailedException 来中止构建
+        //     throw new BuildFailedException ("构建验证失败, 当前打开的场景不正确");
+        // }
 
         BuildApp.GetGameSettingsScript ();
 
@@ -43,6 +44,7 @@ public class BuildPreProcessor : IPreprocessBuildWithReport {
             }
 
             HandleSymbols ();
+
             if (!BuildApp.gameSettings.isUseAutoBuildMachine) {
                 HandleAPKVersion ();
             }
@@ -62,19 +64,43 @@ public class BuildPreProcessor : IPreprocessBuildWithReport {
         BuildTargetGroup targetGroup = BuildTargetGroup.Android;
         // 获取当前的 Scripting Define Symbols 列表
         string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup (targetGroup);
+
         // 你想要删除的符号列表，这里以 "DEBUG" 和 "TEST_MODE" 为例
         string[] symbolsToRemove = null;
         if (BuildApp.gameSettings.serverType is LoginServerType.Release or LoginServerType.Review)
-            symbolsToRemove = new string[] { "PROJECT_LOG", "PROJECT_LOG_TEST" };
-        else
-            symbolsToRemove = new string[] { "PROJECT_LOG" }; //,"ADDRESSABLES_LOG_ALL","DEBUG_PLAYASSETDELIVERY"
+            symbolsToRemove = new string[] { "PROJECT_LOG", "PROJECT_NOTPRODUCTION_LOG" };
+        else {
+            if (BuildApp.gameSettings.isBuildPerfTestPackage)
+                symbolsToRemove = new string[] { "PROJECT_LOG", "PROJECT_NOTPRODUCTION_LOG" };
+            else
+                symbolsToRemove = new string[] { "PROJECT_LOG" }; //,"ADDRESSABLES_LOG_ALL","DEBUG_PLAYASSETDELIVERY"
+        }
         foreach (string symbol in symbolsToRemove) {
             // 使用 StringReplace 函数将符号替换为空字符串，从而实现删除操作
             Debug.Log ("Removed symbols: " + string.Join (", ", symbol));
             defines = defines.Replace (symbol, "");
         }
+
+        if (BuildApp.gameSettings.isBuildPerfTestPackage || BuildApp.gameSettings.serverType is LoginServerType.Release or LoginServerType.Review) {
+            string[] symbolsToAdd = new string[] { "PROJECT_PRODUCTION" };
+            foreach (string symbol in symbolsToAdd) {
+                // 检查是否已经包含该符号，如果不包含，则添加
+                if (!defines.Contains (symbol)) {
+                    Debug.Log ("Added symbols: " + string.Join (", ", symbol));
+                    if (defines.Length > 0) {
+                        defines += ";" + symbol;
+                    } else {
+                        defines = symbol;
+                    }
+                }
+            }
+        }
+
         // 更新 PlayerSettings 中的 Scripting Define Symbols
         PlayerSettings.SetScriptingDefineSymbolsForGroup (targetGroup, defines);
+
+        AssetDatabase.SaveAssets ();
+        AssetDatabase.Refresh ();
     }
 
     void HandleAPKVersion () {

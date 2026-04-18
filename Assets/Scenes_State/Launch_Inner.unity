@@ -132,6 +132,7 @@ GameObject:
   m_Component:
   - component: {fileID: 148679673}
   - component: {fileID: 148679672}
+  - component: {fileID: 148679674}
   m_Layer: 0
   m_Name: Entry___
   m_TagString: Untagged
@@ -153,10 +154,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ifHandleNewerGuid: 0
   ifHandleSystemGuid: 0
-  isShowEnvInfo: 0
-  ifShowGUITest: 0
-  IsUseLogViewer: 0
-  m_IsDebuglog: 0
+  isShowEnvInfo: 1
+  ifShowGUITest: 1
+  IsUseLogViewer: 1
+  m_IsDebuglog: 1
+  isBuildPerfTestPackage: 0
   serverType: 4
   hostIp_dev_Localhost: 127.0.0.1
   hostIp_dev_ZhangSan: 10.0.0.5
@@ -185,6 +187,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &148679674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148679671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44ccbed1ec184f0438bf13abb2e6c0a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1210011583
 GameObject:
   m_ObjectHideFlags: 0

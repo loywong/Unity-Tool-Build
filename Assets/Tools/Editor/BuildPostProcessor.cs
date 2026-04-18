@@ -11,8 +11,6 @@ public class BuildPostProcessor : IPostprocessBuildWithReport {
     public void OnPostprocessBuild (BuildReport report) {
         Debug.Log ("OnPostprocessBuild");
 
-        BuildApp.HandleSceneForBuild_Post ();
-
         // 获取构建完成的目标平台
         BuildTarget target = report.summary.platform;
 
@@ -23,6 +21,9 @@ public class BuildPostProcessor : IPostprocessBuildWithReport {
 
             EditorApplication.delayCall += () => {
                 HandleAPKName ();
+
+                // NARK buil完成，是否切换场景为默认的 Launch_Inner场景，方便开发者后续调试
+                // BuildApp.HandleSceneForBuild_Post ();
             };
         }
 
@@ -30,11 +31,24 @@ public class BuildPostProcessor : IPostprocessBuildWithReport {
     }
 
     void HandleSymbols () {
+        // 获取当前的 BuildTargetGroup，这里假设是 Android，你可以根据需要修改为其他平台
         BuildTargetGroup targetGroup = BuildTargetGroup.Android;
         // 获取当前的 Scripting Define Symbols 列表
         string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup (targetGroup);
+
+         // ----------
         // 你想要删除的符号列表，这里以 "DEBUG" 和 "TEST_MODE" 为例
-        string[] symbolsToAdd = new string[] { "PROJECT_LOG", "PROJECT_LOG_TEST" };
+        string[] symbolsToRemove = null;
+        symbolsToRemove = new string[] { "PROJECT_PRODUCTION" };
+
+        foreach (string symbol in symbolsToRemove) {
+            // 使用 StringReplace 函数将符号替换为空字符串，从而实现删除操作
+            Debug.Log ("Removed symbols: " + string.Join (", ", symbol));
+            defines = defines.Replace (symbol, "");
+        }
+
+        // 你想要删除的符号列表，这里以 "DEBUG" 和 "TEST_MODE" 为例
+        string[] symbolsToAdd = new string[] { "PROJECT_LOG", "PROJECT_NOTPRODUCTION_LOG" };
         foreach (string symbol in symbolsToAdd) {
             // 检查是否已经包含该符号，如果不包含，则添加
             if (!defines.Contains (symbol)) {
@@ -88,17 +102,30 @@ public class BuildPostProcessor : IPostprocessBuildWithReport {
         // 7. 日期-时间
         string dateTime = System.DateTime.Now.ToString ("yyyyMMdd[HHmmss]");
 
-        // 组合新文件名
-        string fileFormat = isAAB? ".aab": ".apk";
+        // 组合新文件名 ------------------------------------------------- begin
+        // 第一段
         string newFileName;
         if (BuildApp.gameSettings.isInternalMemberLogin)
-            newFileName = $"{productName}_{serverType}_v{version}_vbc{resVersion}_{dateTime}_{channel}[{packageName}]_XXXInternal{fileFormat}";
+            newFileName = $"{productName}_{serverType}_v{version}_vbc{resVersion}_{dateTime}_{channel}[{packageName}]_SweechInternal";
         else
-            newFileName = $"{productName}_{serverType}_v{version}_vbc{resVersion}_{dateTime}_{channel}[{packageName}]{fileFormat}";
+            newFileName = $"{productName}_{serverType}_v{version}_vbc{resVersion}_{dateTime}_{channel}[{packageName}]";
         // 去掉非法文件名字符
         newFileName = string.Concat (newFileName.Split (Path.GetInvalidFileNameChars ()));
 
+        // 第二段
+        // 性能测试版本
+        string PerfTag = "";
+        if (BuildApp.gameSettings.isBuildPerfTestPackage)
+            PerfTag = "[PERF]";
+        if (PerfTag.IsValid ())
+            newFileName += $"_{PerfTag}";
+
+        // 第三段
+        string fileFormat = isAAB? ".aab": ".apk";
+        newFileName+=fileFormat;
+
         newPath = Path.Combine (buildFolder, newFileName);
+        // 组合新文件名 ------------------------------------------------- end
 
         // 重命名
         File.Move (oldApkPath, newPath);

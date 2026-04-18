@@ -84,30 +84,32 @@ public class BuildApp {
         EditorSceneManager.OpenScene (scenePath, OpenSceneMode.Single);
         Debug.Log ("已切换到场景: " + scenePath);
     }
-    public static void HandleSceneForBuild_Post () {
-        string scenePath = "Assets/Scenes_State/Launch_Inner.unity";
 
-        // 3. 清空 BuildSettings 里的所有场景
-        // ClearBuildScenes();
-        EditorBuildSettings.scenes = new EditorBuildSettingsScene[0];
-        Debug.Log ("已清空 BuildSettings 中的场景列表");
-        AssetDatabase.SaveAssets ();
-        AssetDatabase.Refresh ();
+    // public static void HandleSceneForBuild_Post () {
+    //     // 打开Luanch_Build场景
+    //     string scenePath = "Assets/Scenes_State/Launch_Inner.unity";
 
-        // 4. 把目标场景添加到 BuildSettings
-        AddSceneToBuildSettings (scenePath);
-        AssetDatabase.SaveAssets ();
-        AssetDatabase.Refresh ();
+    //     // 3. 清空 BuildSettings 里的所有场景
+    //     // ClearBuildScenes();
+    //     EditorBuildSettings.scenes = new EditorBuildSettingsScene[0];
+    //     Debug.Log ("已清空 BuildSettings 中的场景列表");
+    //     AssetDatabase.SaveAssets ();
+    //     AssetDatabase.Refresh ();
 
-        EditorApplication.delayCall += () => {
-            // 打开场景
-            EditorSceneManager.OpenScene (scenePath, OpenSceneMode.Single);
-            AssetDatabase.SaveAssets ();
-            AssetDatabase.Refresh ();
-        };
+    //     // 4. 把目标场景添加到 BuildSettings
+    //     AddSceneToBuildSettings (scenePath);
+    //     AssetDatabase.SaveAssets ();
+    //     AssetDatabase.Refresh ();
 
-        Debug.Log ($"=== 构建后 已处理场景: {scenePath}");
-    }
+    //     EditorApplication.delayCall += () => {
+    //         EditorSceneManager.OpenScene (scenePath, OpenSceneMode.Single);
+    //         Debug.Log ("已切换到场景: " + scenePath);
+    //         AssetDatabase.SaveAssets ();
+    //         AssetDatabase.Refresh ();
+
+    //         Debug.Log ($"=== 构建后 已处理场景: {scenePath}");
+    //     };
+    // }
 
     static void AddSceneToBuildSettings (string scenePath) {
         // 创建新的场景列表
@@ -146,6 +148,25 @@ public class BuildApp {
             BuildApp.HandleSceneForDevMode ();
             isDevOrBuildMode = true;
             Debug.Log ("已切换为Dev_开发模式");
+        }
+    }
+
+    public static void SetDevelopmentBuild () {
+        EditorUserBuildSettings.development = BuildApp.gameSettings.isBuildPerfTestPackage;
+        // AssetDatabase.SaveAssets ();
+        // AssetDatabase.Refresh ();
+    }
+
+    public static void HandleDebugUtil () {
+        DebugUtil DebugUtil = BuildApp.gameSettings.GetComponent<DebugUtil> ();
+        if (BuildApp.gameSettings.isBuildPerfTestPackage || BuildApp.gameSettings.serverType is LoginServerType.Release or LoginServerType.Review) {
+            if (DebugUtil != null)
+                GameObject.DestroyImmediate (DebugUtil);
+        } else {
+            if (DebugUtil == null)
+                DebugUtil = BuildApp.gameSettings.gameObject.AddComponent<DebugUtil> ();
+
+            DebugUtil.enabled = true;
         }
     }
 }

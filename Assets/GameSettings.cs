@@ -32,6 +32,7 @@ public class GameSettings : MonoBehaviour {
     [LabelText ("启动本地调试Log"), SerializeField] public bool m_IsDebuglog;
     [LabelText ("[白名单] 测试账号密码登录_4正式服")] bool _isInternalMemberLogin;
     public bool isInternalMemberLogin => _isInternalMemberLogin;
+    [LabelText("性能测试包")] public bool isBuildPerfTestPackage;
 
     [Header ("游戏配置Server ----------")]
     [LabelText ("服务器环境"), SerializeField] public LoginServerType serverType = LoginServerType.Test_Inner;
