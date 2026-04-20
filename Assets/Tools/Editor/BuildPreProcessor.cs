@@ -23,11 +23,12 @@ public class BuildPreProcessor : IPreprocessBuildWithReport {
         string scenePath = activeScene.path;
         Debug.Log ($"scenePath:{scenePath}");
 
-        // // throw new BuildFailedException("构建验证失败, 当前打开的场景不正确");
-        // if (!scenePath.Equals ("Assets/Scenes_State/Launch_Build.unity")) {
-        //     // 抛出 BuildFailedException 来中止构建
-        //     throw new BuildFailedException ("构建验证失败, 当前打开的场景不正确");
-        // }
+        // 如果打开的场景 和 BuildSettings里设置的第一个场景不一致，则中止构建
+        string firstScenePath = EditorBuildSettings.scenes.Length > 0 ? EditorBuildSettings.scenes[0].path : null;
+        if (!scenePath.Equals (firstScenePath)) {
+            Debug.LogError ($"构建验证失败, 打开的场景({scenePath})和BuildSettings里设置的第一个场景({firstScenePath})不一致");
+            throw new BuildFailedException ("构建验证失败, 打开的场景和BuildSettings里设置的第一个场景不一致");
+        }
 
         BuildApp.GetGameSettingsScript ();
 
