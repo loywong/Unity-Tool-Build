@@ -58,12 +58,9 @@ public class GameSettings : MonoBehaviour {
     [LabelText ("Web中心-Platform名"), SerializeField] string _VersionName = "Android";
     [LabelText ("APP版本号"), SerializeField] string _AppVersion = "0.0.00";
 
-    [LabelText ("不自动调参(非打包机上使用)")] bool _isUseAutoBuildMachine;
-
     public LoginChannelType loginChannelType => _loginChannelType;
     public string AppName => _AppName;
     public string VersionName => _VersionName;
-    public bool isUseAutoBuildMachine => _isUseAutoBuildMachine;
 
     public string AppVersion => _AppVersion;
     void Awake () {

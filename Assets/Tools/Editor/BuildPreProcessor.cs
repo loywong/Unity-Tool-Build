@@ -32,28 +32,29 @@ public class BuildPreProcessor : IPreprocessBuildWithReport {
 
         BuildApp.GetGameSettingsScript ();
 
-        // 获取构建完成的目标平台
-        BuildTarget target = report.summary.platform;
-
         HandleProductName ();
         Debug.Log ($"___________ PlayerSettings.productName:{PlayerSettings.productName}, server type:{BuildApp.gameSettings.serverType}");
 
+        CheckChannelType ();
+
+        // 获取构建完成的目标平台
+        BuildTarget target = report.summary.platform;
         if (target == BuildTarget.Android) {
             // 检查构建条件
             if (Application.version != BuildApp.gameSettings.AppVersion) {
                 throw new BuildFailedException ("构建被中断: 版本号{Application.version}设置不对, 应该是{gameSettings.AppVersion}");
             }
 
-            HandleSymbols ();
+            // BuildApp.SetDevelopmentBuild(); // 这里不设置了，放到Tool_ChangeBuildOrDevMode里设置，避免切换Build和Dev模式时重复设置
+            
+            // // HandlePackageName();
 
-            if (!BuildApp.gameSettings.isUseAutoBuildMachine) {
-                HandleAPKVersion ();
-            }
+            // AssetDatabase.SaveAssets ();
+            // AssetDatabase.Refresh ();
+
+            HandleSymbols ();
         }
 
-        // // 你可以在此处添加更多的预处理操作，例如修改其他 PlayerSettings 或者检查资源等
-        // // 例如，修改应用的包名
-        // PlayerSettings.applicationIdentifier = "com.yourcompany.yourapp";
         // // 或者修改最低 API 级别
         // PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
 
@@ -104,16 +105,12 @@ public class BuildPreProcessor : IPreprocessBuildWithReport {
         AssetDatabase.Refresh ();
     }
 
-    void HandleAPKVersion () {
+    void CheckChannelType () {
         if (BuildApp.gameSettings.serverType == LoginServerType.Release) {
             if (BuildApp.gameSettings.loginChannelType is LoginChannelType.NONE) {
                 throw new BuildFailedException ("release版本的渠道不可能为NONE");
             }
-            return;
         }
-        PlayerSettings.bundleVersion = "0.0.00";
-        AssetDatabase.SaveAssets ();
-        AssetDatabase.Refresh ();
     }
     void HandleProductName () {
         if (BuildApp.gameSettings.serverType == LoginServerType.Release) {
@@ -133,4 +130,10 @@ public class BuildPreProcessor : IPreprocessBuildWithReport {
         AssetDatabase.SaveAssets ();
         AssetDatabase.Refresh ();
     }
+
+    // void HandlePackageName () {
+    //     // 你可以在此处添加更多的预处理操作，例如修改其他 PlayerSettings 或者检查资源等
+    //     // 例如，修改应用的包名
+    //     PlayerSettings.applicationIdentifier = "com.yourcompany.yourapp";
+    // }
 }

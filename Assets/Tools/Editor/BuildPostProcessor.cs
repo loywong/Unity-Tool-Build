@@ -22,12 +22,23 @@ public class BuildPostProcessor : IPostprocessBuildWithReport {
             EditorApplication.delayCall += () => {
                 HandleAPKName ();
 
+                ChecRevertPackageName();
+
+                AssetDatabase.SaveAssets ();
+                AssetDatabase.Refresh ();
+
                 // NARK buil完成，是否切换场景为默认的 Launch_Inner场景，方便开发者后续调试
                 // BuildApp.HandleSceneForBuild_Post ();
             };
         }
 
         Debug.Log ("Post-build processing completed.");
+    }
+
+    void ChecRevertPackageName () {
+        // if (BuildApp.gameSettings.serverType is LoginServerType.Release or LoginServerType.Review)
+        //     return;
+        PlayerSettings.SetApplicationIdentifier (BuildTargetGroup.Android, "com.yourcompany.yourapp");
     }
 
     void HandleSymbols () {
